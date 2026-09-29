@@ -1,1 +1,193 @@
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#e5e7eb;color:#111827}.editor-bar{height:64px;background:#fff;border-bottom:1px solid #d1d5db;display:flex;align-items:center;gap:22px;padding:0 18px}.editor-bar .brand{margin-right:auto;font-weight:800;text-decoration:none;color:#111}.editor-bar .brand span{color:#2563eb}.editor-bar button{border:1px solid #d1d5db;background:#fff;padding:9px 14px;border-radius:9px;cursor:pointer}.editor-bar .primary{background:#2563eb;color:#fff}.editor-layout{height:calc(100vh - 64px);display:grid;grid-template-columns:230px 1fr 260px}.panel{background:#fff;padding:18px;border-right:1px solid #d1d5db;overflow:auto}.panel.right{border-left:1px solid #d1d5db;border-right:0}.panel h3{font-size:14px}.canvas{padding:35px;overflow:auto}.site{max-width:1000px;margin:auto;background:#fff;min-height:700px;border-radius:8px;overflow:hidden;box-shadow:0 10px 30px #0001}.site section{padding:60px}.site .hero-section{background:var(--primary);color:#fff;min-height:300px}.site h1{font-size:48px;margin:0 0 15px}.site p{line-height:1.7}.section-item{padding:10px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;cursor:pointer}.panel label{display:block;font-size:12px;margin:14px 0}.panel input{display:block;margin-top:7px;width:100%}pre{font-size:10px;white-space:pre-wrap;background:#f8fafc;padding:10px;border-radius:8px}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.editor-bar {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 18px;
+}
+
+.editor-bar .brand {
+  margin-right: auto;
+  font-weight: 800;
+  text-decoration: none;
+  color: #111;
+}
+
+.editor-bar .brand span {
+  color: #2563eb;
+}
+
+.editor-bar button {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  padding: 9px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.editor-bar .primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.editor-layout {
+  height: calc(100vh - 64px);
+  display: grid;
+  grid-template-columns: 230px 1fr 260px;
+}
+
+.panel {
+  background: #fff;
+  padding: 18px;
+  border-right: 1px solid #d1d5db;
+  overflow: auto;
+}
+
+.panel.right {
+  border-left: 1px solid #d1d5db;
+  border-right: 0;
+}
+
+.panel h3 {
+  font-size: 14px;
+}
+
+.canvas {
+  padding: 35px;
+  overflow: auto;
+}
+
+.site {
+  max-width: 1000px;
+  margin: auto;
+  background: #fff;
+  min-height: 700px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px #0001;
+}
+
+.site section {
+  position: relative;
+  padding: 60px;
+}
+
+.site .hero-section {
+  background: var(--primary);
+  color: #fff;
+  min-height: 300px;
+}
+
+.site h1 {
+  font-size: 48px;
+  margin: 0 0 15px;
+}
+
+.site p {
+  line-height: 1.7;
+}
+
+/* =========================
+   webCanvas Selection
+   ========================= */
+
+.wc-section {
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color 0.12s ease;
+}
+
+.wc-element {
+  outline: 2px solid transparent;
+  outline-offset: 3px;
+  cursor: pointer;
+  transition:
+    outline-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+/* Element ที่ถูกเลือก */
+.wc-selected {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 3px;
+}
+
+/* Section ที่ถูกเลือก */
+.wc-section.wc-selected {
+  outline: 2px solid #2563eb !important;
+  outline-offset: -2px;
+}
+
+/* ตอนเอาเมาส์ไปวาง */
+@media (hover: hover) {
+  .wc-element:hover:not(.wc-selected) {
+    outline-color: #93c5fd;
+  }
+
+  .wc-section:hover:not(.wc-selected) {
+    outline-color: #bfdbfe;
+  }
+}
+
+/* ป้องกัน contenteditable ทำให้ดูเหมือน layout ขยับ */
+.wc-text[contenteditable="true"] {
+  min-height: 1em;
+}
+
+/* =========================
+   Section List
+   ========================= */
+
+.section-item {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.section-item:hover {
+  background: #f8fafc;
+}
+
+.section-item:active {
+  cursor: grabbing;
+}
+
+/* =========================
+   Right Panel
+   ========================= */
+
+.panel label {
+  display: block;
+  font-size: 12px;
+  margin: 14px 0;
+}
+
+.panel input {
+  display: block;
+  margin-top: 7px;
+  width: 100%;
+}
+
+pre {
+  font-size: 10px;
+  white-space: pre-wrap;
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 8px;
+}
