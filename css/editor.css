@@ -2,27 +2,56 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+
   background: #e5e7eb;
   color: #111827;
 }
 
+/* =========================
+   EDITOR BAR
+========================= */
+
 .editor-bar {
   height: 64px;
+
   background: #fff;
-  border-bottom: 1px solid #d1d5db;
+
+  border-bottom:
+    1px solid
+    #d1d5db;
+
   display: flex;
   align-items: center;
+
   gap: 22px;
+
   padding: 0 18px;
+
+  position: sticky;
+  top: 0;
+
+  z-index: 100;
 }
 
 .editor-bar .brand {
   margin-right: auto;
+
   font-weight: 800;
+
   text-decoration: none;
+
   color: #111;
 }
 
@@ -31,53 +60,101 @@ body {
 }
 
 .editor-bar button {
-  border: 1px solid #d1d5db;
+  border:
+    1px solid
+    #d1d5db;
+
   background: #fff;
-  padding: 9px 14px;
+
+  padding:
+    9px 14px;
+
   border-radius: 9px;
+
   cursor: pointer;
+
+  font-weight: 600;
 }
 
 .editor-bar .primary {
   background: #2563eb;
   color: #fff;
+  border-color: #2563eb;
 }
 
+/* =========================
+   LAYOUT
+========================= */
+
 .editor-layout {
-  height: calc(100vh - 64px);
+  min-height:
+    calc(100vh - 64px);
+
   display: grid;
-  grid-template-columns: 230px 1fr 260px;
+
+  grid-template-columns:
+    230px
+    minmax(0,1fr)
+    260px;
 }
+
+/* =========================
+   PANELS
+========================= */
 
 .panel {
   background: #fff;
+
   padding: 18px;
-  border-right: 1px solid #d1d5db;
+
+  border-right:
+    1px solid
+    #d1d5db;
+
   overflow: auto;
 }
 
 .panel.right {
-  border-left: 1px solid #d1d5db;
+  border-left:
+    1px solid
+    #d1d5db;
+
   border-right: 0;
 }
 
 .panel h3 {
   font-size: 14px;
+  margin-top: 0;
 }
+
+/* =========================
+   CANVAS
+========================= */
 
 .canvas {
   padding: 35px;
+
   overflow: auto;
+
+  min-width: 0;
 }
 
 .site {
   max-width: 1000px;
+
   margin: auto;
-  background: #fff;
+
   min-height: 700px;
+
   border-radius: 8px;
+
   overflow: hidden;
-  box-shadow: 0 10px 30px #0001;
+
+  box-shadow:
+    0 10px 30px
+    rgba(0,0,0,.08);
+
+  color: var(--site-text,#111827);
 }
 
 .site section {
@@ -85,56 +162,121 @@ body {
 }
 
 .site .hero-section {
-  background: var(--primary);
+  background:
+    var(--primary);
+
   color: #fff;
-  min-height: 300px;
+
+  min-height: 320px;
 }
 
 .site h1 {
   font-size: 48px;
-  margin: 0 0 15px;
+
+  margin:
+    0 0 15px;
 }
 
 .site p {
   line-height: 1.7;
 }
 
+/* =========================
+   SECTION LIST
+========================= */
+
 .section-item {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  text-align: left;
+
   padding: 10px;
-  border: 1px solid #e5e7eb;
+
+  border:
+    1px solid
+    #e5e7eb;
+
   border-radius: 8px;
+
   margin-bottom: 8px;
+
   cursor: pointer;
+
+  background: #fff;
 }
+
+.section-item:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.section-item span {
+  color: #64748b;
+  min-width: 18px;
+}
+
+/* =========================
+   COLOR CONTROLS
+========================= */
 
 .panel label {
   display: block;
+
   font-size: 12px;
-  margin: 14px 0;
+
+  margin:
+    14px 0;
 }
 
-.panel input {
+.panel input[type="color"] {
   display: block;
+
   margin-top: 7px;
+
   width: 100%;
+
+  height: 40px;
+
+  border: 0;
+
+  padding: 0;
+
+  cursor: pointer;
 }
 
 pre {
   font-size: 10px;
+
   white-space: pre-wrap;
+
+  word-break: break-word;
+
   background: #f8fafc;
+
   padding: 10px;
+
   border-radius: 8px;
 }
 
 /* =========================
-   WEB CANVAS ELEMENTS
+   ELEMENTS
 ========================= */
 
 .wc-section {
-  outline: 2px solid transparent;
+  outline:
+    2px solid
+    transparent;
+
   outline-offset: -2px;
-  transition: outline-color 0.12s ease;
+
+  transition:
+    outline-color .12s ease;
 }
 
 .wc-section-content {
@@ -142,31 +284,43 @@ pre {
 }
 
 .wc-element {
-  outline: 2px solid transparent;
+  outline:
+    2px solid
+    transparent;
+
   outline-offset: 3px;
+
   cursor: grab;
+
   transition:
-    outline-color 0.12s ease,
-    box-shadow 0.12s ease,
-    opacity 0.12s ease;
+    outline-color .12s ease,
+    box-shadow .12s ease,
+    opacity .12s ease;
 }
 
 .wc-element:hover {
-  outline-color: #93c5fd;
+  outline-color:
+    #93c5fd;
 }
 
 .wc-element.wc-selected {
-  outline: 2px solid #2563eb;
+  outline:
+    2px solid
+    #2563eb;
+
   outline-offset: 3px;
 }
 
 .wc-element.wc-dragging {
-  opacity: 0.45;
+  opacity: .45;
   cursor: grabbing;
 }
 
 .wc-section.wc-selected {
-  outline: 2px solid #2563eb;
+  outline:
+    2px solid
+    #2563eb;
+
   outline-offset: -2px;
 }
 
@@ -174,41 +328,136 @@ pre {
   min-height: 1em;
 }
 
+/* =========================
+   LABELS
+========================= */
+
 .wc-element-label {
   width: fit-content;
-  margin: 10px 0 5px;
-  padding: 3px 7px;
+
+  margin:
+    10px 0
+    5px;
+
+  padding:
+    3px 7px;
+
   border-radius: 4px;
+
   background: #e5e7eb;
+
   color: #6b7280;
+
   font-size: 10px;
+
   font-weight: 700;
-  letter-spacing: 0.08em;
+
+  letter-spacing: .08em;
 }
 
-.hero-section .wc-element-label {
-  background: #ffffff33;
+.hero-section
+.wc-element-label {
+  background:
+    rgba(255,255,255,.2);
+
   color: #fff;
 }
+
+/* =========================
+   BUTTON ELEMENT
+========================= */
 
 .wc-button {
   display: inline-block;
-  padding: 12px 20px;
+
+  padding:
+    12px 20px;
+
   border: 0;
+
   border-radius: 8px;
-  background: var(--primary, #2563eb);
+
+  background:
+    var(--primary,#2563eb);
+
   color: #fff;
+
   font-size: 15px;
+
   cursor: grab;
 }
 
+/* =========================
+   DROP
+========================= */
+
 .wc-drop-target {
-  outline: 2px dashed #2563eb !important;
+  outline:
+    2px dashed
+    #2563eb !important;
+
   outline-offset: 6px;
 }
 
 .wc-drop-end {
   min-height: 20px;
-  outline: 2px dashed #93c5fd;
+
+  outline:
+    2px dashed
+    #93c5fd;
+
   outline-offset: -4px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 900px) {
+
+  .editor-layout {
+    grid-template-columns:
+      180px
+      minmax(0,1fr);
+  }
+
+  .panel.right {
+    display: none;
+  }
+
+  .canvas {
+    padding: 15px;
+  }
+
+  .site section {
+    padding: 40px 25px;
+  }
+
+  .site h1 {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    display: none;
+  }
+
+  .canvas {
+    padding: 10px;
+  }
+
+  .editor-bar {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .editor-bar strong {
+    font-size: 13px;
+  }
 }
