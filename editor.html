@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>webCanvas Editor</title>
+  <link rel="stylesheet" href="css/editor.css">
+</head>
+<body>
+  <header class="editor-bar">
+    <a class="brand" href="index.html">web<span>Canvas</span></a>
+    <strong id="editorTitle">New Website</strong>
+    <div>
+      <button id="previewBtn">Preview</button>
+      <button class="primary" id="exportBtn">Export</button>
+    </div>
+  </header>
+  <div class="editor-layout">
+    <aside class="panel">
+      <h3>Sections</h3>
+      <div id="sectionList"></div>
+    </aside>
+    <main class="canvas">
+      <div id="websiteCanvas"></div>
+    </main>
+    <aside class="panel right">
+      <h3>Design</h3>
+      <label>Primary color<input id="primaryColor" type="color" value="#2563eb"></label>
+      <label>Background<input id="bgColor" type="color" value="#ffffff"></label>
+      <h3>Template data</h3>
+      <pre id="templateInfo"></pre>
+    </aside>
+  </div>
+  <script type="module" src="js/editor.js"></script>
+</body>
+</html>

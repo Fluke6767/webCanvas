@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>webCanvas</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">web<span>Canvas</span></div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#templates">Templates</a>
+      <a href="#categories">Categories</a>
+      <a href="#community">Community</a>
+    </nav>
+    <button class="primary" id="createBtn">+ Create Website</button>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div>
+        <p class="eyebrow">WEBSITE CREATION PLATFORM</p>
+        <h1>Create a website without starting from zero.</h1>
+        <p class="lead">เลือกประเภท สไตล์ และ Template แล้วเริ่มปรับแต่งเว็บไซต์ของคุณได้ทันที</p>
+        <div class="searchbox">
+          <span>⌕</span>
+          <input id="searchInput" placeholder="ค้นหา Template เช่น portfolio, business, modern...">
+        </div>
+        <div class="hero-actions">
+          <button class="primary" id="generateBtn">✨ Generate Website</button>
+          <a class="secondary" href="#templates">Browse Templates</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="mini-window">
+          <div class="dots">● ● ●</div>
+          <div class="mini-line wide"></div>
+          <div class="mini-line"></div>
+          <div class="mini-block"></div>
+          <div class="mini-grid"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="templates">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">DISCOVER</p>
+          <h2>Templates for every idea</h2>
+        </div>
+        <div class="filters">
+          <select id="categoryFilter"><option value="all">ทุกประเภท</option></select>
+          <select id="styleFilter"><option value="all">ทุกสไตล์</option></select>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>⭐ Recommended for you</h3>
+        <div class="template-grid" id="recommendedGrid"></div>
+      </div>
+
+      <div class="subsection">
+        <h3>🔥 Popular</h3>
+        <div class="template-grid" id="popularGrid"></div>
+      </div>
+
+      <div class="subsection">
+        <h3>🆕 New Templates</h3>
+        <div class="template-grid" id="newGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="categories">
+      <p class="eyebrow">EXPLORE</p>
+      <h2>Choose what you want to build</h2>
+      <div class="category-grid" id="categoryGrid"></div>
+    </section>
+
+    <section class="section community" id="community">
+      <p class="eyebrow">COMMUNITY</p>
+      <h2>Build a Template. Share it.</h2>
+      <p>webCanvas ออกแบบให้คนอื่นสามารถสร้าง Template และส่งเข้าระบบได้ โดยไม่ต้องแก้ Core ของโปรเจกต์</p>
+      <button class="secondary" id="starterBtn">View Template Starter</button>
+    </section>
+  </main>
+
+  <footer>webCanvas · Website creation made modular.</footer>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
