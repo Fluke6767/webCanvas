@@ -81,7 +81,6 @@ body {
 }
 
 .site section {
-  position: relative;
   padding: 60px;
 }
 
@@ -100,77 +99,13 @@ body {
   line-height: 1.7;
 }
 
-/* =========================
-   webCanvas Selection
-   ========================= */
-
-.wc-section {
-  outline: 2px solid transparent;
-  outline-offset: -2px;
-  transition: outline-color 0.12s ease;
-}
-
-.wc-element {
-  outline: 2px solid transparent;
-  outline-offset: 3px;
-  cursor: pointer;
-  transition:
-    outline-color 0.12s ease,
-    box-shadow 0.12s ease;
-}
-
-/* Element ที่ถูกเลือก */
-.wc-selected {
-  outline: 2px solid #2563eb !important;
-  outline-offset: 3px;
-}
-
-/* Section ที่ถูกเลือก */
-.wc-section.wc-selected {
-  outline: 2px solid #2563eb !important;
-  outline-offset: -2px;
-}
-
-/* ตอนเอาเมาส์ไปวาง */
-@media (hover: hover) {
-  .wc-element:hover:not(.wc-selected) {
-    outline-color: #93c5fd;
-  }
-
-  .wc-section:hover:not(.wc-selected) {
-    outline-color: #bfdbfe;
-  }
-}
-
-/* ป้องกัน contenteditable ทำให้ดูเหมือน layout ขยับ */
-.wc-text[contenteditable="true"] {
-  min-height: 1em;
-}
-
-/* =========================
-   Section List
-   ========================= */
-
 .section-item {
   padding: 10px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   margin-bottom: 8px;
   cursor: pointer;
-  user-select: none;
 }
-
-.section-item:hover {
-  background: #f8fafc;
-}
-
-.section-item:active {
-  cursor: grabbing;
-}
-
-/* =========================
-   Right Panel
-   ========================= */
 
 .panel label {
   display: block;
@@ -190,4 +125,90 @@ pre {
   background: #f8fafc;
   padding: 10px;
   border-radius: 8px;
+}
+
+/* =========================
+   WEB CANVAS ELEMENTS
+========================= */
+
+.wc-section {
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color 0.12s ease;
+}
+
+.wc-section-content {
+  position: relative;
+}
+
+.wc-element {
+  outline: 2px solid transparent;
+  outline-offset: 3px;
+  cursor: grab;
+  transition:
+    outline-color 0.12s ease,
+    box-shadow 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.wc-element:hover {
+  outline-color: #93c5fd;
+}
+
+.wc-element.wc-selected {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.wc-element.wc-dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+}
+
+.wc-section.wc-selected {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+}
+
+.wc-text[contenteditable="true"] {
+  min-height: 1em;
+}
+
+.wc-element-label {
+  width: fit-content;
+  margin: 10px 0 5px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.hero-section .wc-element-label {
+  background: #ffffff33;
+  color: #fff;
+}
+
+.wc-button {
+  display: inline-block;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--primary, #2563eb);
+  color: #fff;
+  font-size: 15px;
+  cursor: grab;
+}
+
+.wc-drop-target {
+  outline: 2px dashed #2563eb !important;
+  outline-offset: 6px;
+}
+
+.wc-drop-end {
+  min-height: 20px;
+  outline: 2px dashed #93c5fd;
+  outline-offset: -4px;
 }
