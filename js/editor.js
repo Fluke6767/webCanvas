@@ -2,17 +2,20 @@ import { getAll, get } from "./registry.js";
 import "./catalog.js";
 
 const params = new URLSearchParams(location.search);
+
 const template =
   get("template", params.get("template")) ||
   getAll("template")[0];
 
 const $ = (selector) => document.querySelector(selector);
 
-$("#editorTitle").textContent = template?.name || "New Website";
-$("#templateInfo").textContent = JSON.stringify(template, null, 2);
-
+const editorTitle = $("#editorTitle");
+const templateInfo = $("#templateInfo");
 const sectionList = $("#sectionList");
 const canvas = $("#websiteCanvas");
+
+editorTitle.textContent =
+  template?.name || "New Website";
 
 const sectionTitles = {
   navbar: "Navigation",
@@ -27,7 +30,12 @@ const sectionTitles = {
   footer: "Footer"
 };
 
+let selectedElement = null;
 let draggedElement = null;
+
+/* =========================
+   CREATE SECTION
+========================= */
 
 function createSection(type, index) {
   const title = sectionTitles[type] || type;
@@ -37,9 +45,13 @@ function createSection(type, index) {
       class="wc-section ${type === "hero" ? "hero-section" : ""}"
       data-section="${type}"
       data-index="${index}"
-      tabindex="0"
     >
+
       <div class="wc-section-content">
+
+        <div class="wc-element-label">
+          HEADING
+        </div>
 
         <h1
           class="wc-element wc-text"
@@ -47,9 +59,17 @@ function createSection(type, index) {
           draggable="true"
           data-element="heading"
           spellcheck="false"
-        >${type === "hero"
-          ? "Build something amazing with webCanvas."
-          : title}</h1>
+        >
+          ${
+            type === "hero"
+              ? "Build something amazing with webCanvas."
+              : title
+          }
+        </h1>
+
+        <div class="wc-element-label">
+          TEXT
+        </div>
 
         <p
           class="wc-element wc-text"
@@ -57,19 +77,32 @@ function createSection(type, index) {
           draggable="true"
           data-element="paragraph"
           spellcheck="false"
-        >This section is ready to customize.</p>
+        >
+          This section is ready to customize.
+        </p>
+
+        <div class="wc-element-label">
+          BUTTON
+        </div>
 
         <button
           class="wc-element wc-button"
           type="button"
           draggable="true"
           data-element="button"
-        >Get Started</button>
+        >
+          Get Started
+        </button>
 
       </div>
+
     </section>
   `;
 }
+
+/* =========================
+   RENDER SITE
+========================= */
 
 function renderSite() {
   if (!canvas) return;
@@ -81,7 +114,7 @@ function renderSite() {
     theme?.colors?.primary ||
     "#2563eb";
 
-  const bg =
+  const background =
     $("#bgColor")?.value ||
     theme?.colors?.background ||
     "#ffffff";
@@ -95,9 +128,9 @@ function renderSite() {
     <div
       class="site"
       style="
-        --primary:${primary};
-        --site-bg:${bg};
-        background:${bg};
+        --primary: ${primary};
+        --site-bg: ${background};
+        background: ${background};
       "
     >
       ${sections
@@ -110,148 +143,257 @@ function renderSite() {
 
   setupElementSelection();
   setupElementDragging();
+
+  updateTemplateInfo();
 }
 
+/* =========================
+   ELEMENT SELECTION
+========================= */
+
 function setupElementSelection() {
-  canvas.querySelectorAll(".wc-section").forEach((section) => {
-    section.addEventListener("click", (event) => {
-      if (event.target.closest(".wc-element")) return;
+  canvas
+    .querySelectorAll(".wc-section")
+    .forEach((section) => {
 
-      selectElement(section);
-    });
-  });
+      section.addEventListener("click", (event) => {
 
-  canvas.querySelectorAll(".wc-element").forEach((element) => {
-    element.addEventListener("click", (event) => {
-      event.stopPropagation();
-      selectElement(element);
+        if (
+          event.target.closest(".wc-element")
+        ) {
+          return;
+        }
+
+        selectElement(section);
+      });
     });
 
-    element.addEventListener("focus", () => {
-      selectElement(element);
+  canvas
+    .querySelectorAll(".wc-element")
+    .forEach((element) => {
+
+      element.addEventListener(
+        "click",
+        (event) => {
+
+          event.stopPropagation();
+
+          selectElement(element);
+        }
+      );
+
+      element.addEventListener(
+        "focus",
+        () => {
+          selectElement(element);
+        }
+      );
     });
-  });
 }
 
 function selectElement(element) {
+
   canvas
     .querySelectorAll(".wc-selected")
-    .forEach((item) =>
-      item.classList.remove("wc-selected")
-    );
+    .forEach((item) => {
+      item.classList.remove(
+        "wc-selected"
+      );
+    });
 
-  element.classList.add("wc-selected");
+  element.classList.add(
+    "wc-selected"
+  );
+
+  selectedElement = element;
 
   const type =
     element.dataset.element ||
     element.dataset.section ||
     "section";
 
-  $("#templateInfo").textContent =
+  templateInfo.textContent =
     `Selected: ${type}\n\n` +
     JSON.stringify(
       {
         element: type,
-        tag: element.tagName.toLowerCase(),
-        text: element.innerText
+        tag:
+          element.tagName.toLowerCase(),
+        text:
+          element.innerText.trim()
       },
       null,
       2
     );
 }
 
+/* =========================
+   DRAG ELEMENT
+========================= */
+
 function setupElementDragging() {
+
   canvas
     .querySelectorAll(".wc-element")
     .forEach((element) => {
 
-      element.addEventListener("dragstart", (event) => {
-        draggedElement = element;
+      element.addEventListener(
+        "dragstart",
+        (event) => {
 
-        element.classList.add("wc-dragging");
+          draggedElement = element;
 
-        event.dataTransfer.effectAllowed = "move";
-        event.dataTransfer.setData(
-          "text/plain",
-          element.dataset.element || "element"
-        );
-      });
+          element.classList.add(
+            "wc-dragging"
+          );
 
-      element.addEventListener("dragend", () => {
-        element.classList.remove("wc-dragging");
-        draggedElement = null;
+          event.dataTransfer.effectAllowed =
+            "move";
 
-        clearDropIndicators();
-      });
+          event.dataTransfer.setData(
+            "text/plain",
+            element.dataset.element ||
+              "element"
+          );
+        }
+      );
+
+      element.addEventListener(
+        "dragend",
+        () => {
+
+          element.classList.remove(
+            "wc-dragging"
+          );
+
+          draggedElement = null;
+
+          clearDropIndicators();
+        }
+      );
     });
 
   canvas
-    .querySelectorAll(".wc-section-content")
+    .querySelectorAll(
+      ".wc-section-content"
+    )
     .forEach((container) => {
 
-      container.addEventListener("dragover", (event) => {
-        if (!draggedElement) return;
+      container.addEventListener(
+        "dragover",
+        (event) => {
 
-        event.preventDefault();
+          if (!draggedElement) {
+            return;
+          }
 
-        event.dataTransfer.dropEffect = "move";
+          event.preventDefault();
 
-        const target = getDropTarget(
-          container,
-          event.clientY
-        );
+          event.dataTransfer.dropEffect =
+            "move";
 
-        clearDropIndicators();
-
-        if (target) {
-          target.classList.add("wc-drop-target");
-        } else {
-          container.classList.add("wc-drop-end");
-        }
-      });
-
-      container.addEventListener("drop", (event) => {
-        if (!draggedElement) return;
-
-        event.preventDefault();
-
-        const target = getDropTarget(
-          container,
-          event.clientY
-        );
-
-        if (target && target !== draggedElement) {
-          const rect = target.getBoundingClientRect();
-
-          const insertBefore =
-            event.clientY < rect.top + rect.height / 2;
-
-          if (insertBefore) {
-            container.insertBefore(
-              draggedElement,
-              target
+          const target =
+            getDropTarget(
+              container,
+              event.clientY
             );
+
+          clearDropIndicators();
+
+          if (
+            target &&
+            target !== draggedElement
+          ) {
+
+            target.classList.add(
+              "wc-drop-target"
+            );
+
           } else {
-            container.insertBefore(
-              draggedElement,
-              target.nextSibling
+
+            container.classList.add(
+              "wc-drop-end"
             );
           }
-        } else {
-          container.appendChild(draggedElement);
         }
+      );
 
-        selectElement(draggedElement);
+      container.addEventListener(
+        "drop",
+        (event) => {
 
-        clearDropIndicators();
-        draggedElement = null;
-      });
+          if (!draggedElement) {
+            return;
+          }
+
+          event.preventDefault();
+
+          const target =
+            getDropTarget(
+              container,
+              event.clientY
+            );
+
+          if (
+            target &&
+            target !== draggedElement
+          ) {
+
+            const rect =
+              target.getBoundingClientRect();
+
+            const insertBefore =
+              event.clientY <
+              rect.top +
+                rect.height / 2;
+
+            if (insertBefore) {
+
+              container.insertBefore(
+                draggedElement,
+                target
+              );
+
+            } else {
+
+              container.insertBefore(
+                draggedElement,
+                target.nextSibling
+              );
+            }
+
+          } else {
+
+            container.appendChild(
+              draggedElement
+            );
+          }
+
+          selectElement(
+            draggedElement
+          );
+
+          draggedElement = null;
+
+          clearDropIndicators();
+        }
+      );
     });
 }
 
-function getDropTarget(container, mouseY) {
+/* =========================
+   FIND DROP TARGET
+========================= */
+
+function getDropTarget(
+  container,
+  mouseY
+) {
+
   const elements = [
-    ...container.querySelectorAll(".wc-element")
+    ...container.querySelectorAll(
+      ".wc-element"
+    )
   ].filter(
     (element) =>
       element !== draggedElement
@@ -261,15 +403,25 @@ function getDropTarget(container, mouseY) {
   let closestDistance = Infinity;
 
   elements.forEach((element) => {
-    const rect = element.getBoundingClientRect();
 
-    const distance = Math.abs(
-      mouseY -
-      (rect.top + rect.height / 2)
-    );
+    const rect =
+      element.getBoundingClientRect();
 
-    if (distance < closestDistance) {
-      closestDistance = distance;
+    const center =
+      rect.top +
+      rect.height / 2;
+
+    const distance =
+      Math.abs(mouseY - center);
+
+    if (
+      distance <
+      closestDistance
+    ) {
+
+      closestDistance =
+        distance;
+
       closest = element;
     }
   });
@@ -277,12 +429,18 @@ function getDropTarget(container, mouseY) {
   return closest;
 }
 
+/* =========================
+   CLEAR DROP INDICATORS
+========================= */
+
 function clearDropIndicators() {
+
   canvas
     .querySelectorAll(
       ".wc-drop-target, .wc-drop-end"
     )
     .forEach((element) => {
+
       element.classList.remove(
         "wc-drop-target",
         "wc-drop-end"
@@ -290,35 +448,75 @@ function clearDropIndicators() {
     });
 }
 
-sectionList.innerHTML = (
-  template?.sections || []
-)
-  .map(
-    (section, index) => `
-      <div
-        class="section-item"
-        draggable="true"
-        data-section="${section}"
-        data-index="${index}"
-      >
-        ${index + 1}.
-        ${sectionTitles[section] || section}
-      </div>
-    `
-  )
-  .join("");
+/* =========================
+   SECTION LIST
+========================= */
 
-$("#primaryColor")?.addEventListener(
-  "input",
-  renderSite
-);
+function renderSectionList() {
 
-$("#bgColor")?.addEventListener(
-  "input",
-  renderSite
-);
+  const sections =
+    template?.sections?.length
+      ? template.sections
+      : ["hero", "features", "contact"];
+
+  sectionList.innerHTML =
+    sections
+      .map(
+        (section, index) => `
+          <div
+            class="section-item"
+            data-section="${section}"
+            data-index="${index}"
+          >
+            ${index + 1}.
+            ${
+              sectionTitles[section] ||
+              section
+            }
+          </div>
+        `
+      )
+      .join("");
+}
+
+/* =========================
+   TEMPLATE INFO
+========================= */
+
+function updateTemplateInfo() {
+
+  if (!templateInfo) return;
+
+  templateInfo.textContent =
+    JSON.stringify(
+      template,
+      null,
+      2
+    );
+}
+
+/* =========================
+   COLORS
+========================= */
+
+$("#primaryColor")
+  ?.addEventListener(
+    "input",
+    renderSite
+  );
+
+$("#bgColor")
+  ?.addEventListener(
+    "input",
+    renderSite
+  );
+
+/* =========================
+   PREVIEW
+========================= */
 
 $("#previewBtn").onclick = () => {
+
   if (!template) return;
 
   location.href =
@@ -327,10 +525,20 @@ $("#previewBtn").onclick = () => {
     )}`;
 };
 
+/* =========================
+   EXPORT
+========================= */
+
 $("#exportBtn").onclick = () => {
+
   alert(
-    "Export engine will be added in a later webCanvas version."
+    "Export engine will be added later."
   );
 };
 
+/* =========================
+   START
+========================= */
+
+renderSectionList();
 renderSite();
