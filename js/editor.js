@@ -27,6 +27,8 @@ const sectionTitles = {
   footer: "Footer"
 };
 
+let draggedElement = null;
+
 function createSection(type, index) {
   const title = sectionTitles[type] || type;
 
@@ -38,16 +40,21 @@ function createSection(type, index) {
       tabindex="0"
     >
       <div class="wc-section-content">
+
         <h1
           class="wc-element wc-text"
           contenteditable="true"
+          draggable="true"
           data-element="heading"
           spellcheck="false"
-        >${type === "hero" ? "Build something amazing with webCanvas." : title}</h1>
+        >${type === "hero"
+          ? "Build something amazing with webCanvas."
+          : title}</h1>
 
         <p
           class="wc-element wc-text"
           contenteditable="true"
+          draggable="true"
           data-element="paragraph"
           spellcheck="false"
         >This section is ready to customize.</p>
@@ -55,8 +62,10 @@ function createSection(type, index) {
         <button
           class="wc-element wc-button"
           type="button"
+          draggable="true"
           data-element="button"
         >Get Started</button>
+
       </div>
     </section>
   `;
@@ -92,12 +101,15 @@ function renderSite() {
       "
     >
       ${sections
-        .map((section, index) => createSection(section, index))
+        .map((section, index) =>
+          createSection(section, index)
+        )
         .join("")}
     </div>
   `;
 
   setupElementSelection();
+  setupElementDragging();
 }
 
 function setupElementSelection() {
@@ -124,7 +136,9 @@ function setupElementSelection() {
 function selectElement(element) {
   canvas
     .querySelectorAll(".wc-selected")
-    .forEach((item) => item.classList.remove("wc-selected"));
+    .forEach((item) =>
+      item.classList.remove("wc-selected")
+    );
 
   element.classList.add("wc-selected");
 
@@ -146,6 +160,136 @@ function selectElement(element) {
     );
 }
 
+function setupElementDragging() {
+  canvas
+    .querySelectorAll(".wc-element")
+    .forEach((element) => {
+
+      element.addEventListener("dragstart", (event) => {
+        draggedElement = element;
+
+        element.classList.add("wc-dragging");
+
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData(
+          "text/plain",
+          element.dataset.element || "element"
+        );
+      });
+
+      element.addEventListener("dragend", () => {
+        element.classList.remove("wc-dragging");
+        draggedElement = null;
+
+        clearDropIndicators();
+      });
+    });
+
+  canvas
+    .querySelectorAll(".wc-section-content")
+    .forEach((container) => {
+
+      container.addEventListener("dragover", (event) => {
+        if (!draggedElement) return;
+
+        event.preventDefault();
+
+        event.dataTransfer.dropEffect = "move";
+
+        const target = getDropTarget(
+          container,
+          event.clientY
+        );
+
+        clearDropIndicators();
+
+        if (target) {
+          target.classList.add("wc-drop-target");
+        } else {
+          container.classList.add("wc-drop-end");
+        }
+      });
+
+      container.addEventListener("drop", (event) => {
+        if (!draggedElement) return;
+
+        event.preventDefault();
+
+        const target = getDropTarget(
+          container,
+          event.clientY
+        );
+
+        if (target && target !== draggedElement) {
+          const rect = target.getBoundingClientRect();
+
+          const insertBefore =
+            event.clientY < rect.top + rect.height / 2;
+
+          if (insertBefore) {
+            container.insertBefore(
+              draggedElement,
+              target
+            );
+          } else {
+            container.insertBefore(
+              draggedElement,
+              target.nextSibling
+            );
+          }
+        } else {
+          container.appendChild(draggedElement);
+        }
+
+        selectElement(draggedElement);
+
+        clearDropIndicators();
+        draggedElement = null;
+      });
+    });
+}
+
+function getDropTarget(container, mouseY) {
+  const elements = [
+    ...container.querySelectorAll(".wc-element")
+  ].filter(
+    (element) =>
+      element !== draggedElement
+  );
+
+  let closest = null;
+  let closestDistance = Infinity;
+
+  elements.forEach((element) => {
+    const rect = element.getBoundingClientRect();
+
+    const distance = Math.abs(
+      mouseY -
+      (rect.top + rect.height / 2)
+    );
+
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closest = element;
+    }
+  });
+
+  return closest;
+}
+
+function clearDropIndicators() {
+  canvas
+    .querySelectorAll(
+      ".wc-drop-target, .wc-drop-end"
+    )
+    .forEach((element) => {
+      element.classList.remove(
+        "wc-drop-target",
+        "wc-drop-end"
+      );
+    });
+}
+
 sectionList.innerHTML = (
   template?.sections || []
 )
@@ -157,20 +301,30 @@ sectionList.innerHTML = (
         data-section="${section}"
         data-index="${index}"
       >
-        ${index + 1}. ${sectionTitles[section] || section}
+        ${index + 1}.
+        ${sectionTitles[section] || section}
       </div>
     `
   )
   .join("");
 
-$("#primaryColor")?.addEventListener("input", renderSite);
-$("#bgColor")?.addEventListener("input", renderSite);
+$("#primaryColor")?.addEventListener(
+  "input",
+  renderSite
+);
+
+$("#bgColor")?.addEventListener(
+  "input",
+  renderSite
+);
 
 $("#previewBtn").onclick = () => {
   if (!template) return;
 
   location.href =
-    `preview.html?template=${encodeURIComponent(template.id)}`;
+    `preview.html?template=${encodeURIComponent(
+      template.id
+    )}`;
 };
 
 $("#exportBtn").onclick = () => {
