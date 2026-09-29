@@ -1,92 +1,272 @@
-const registry = {
-  templates: [],
-  categories: [],
-  styles: [],
-  themes: [],
-  elements: []
-};
+import { register } from "./registry.js";
 
-const typeMap = {
-  template: "templates",
-  category: "categories",
-  style: "styles",
-  theme: "themes",
-  element: "elements"
-};
+/* =========================
+   CATEGORIES
+========================= */
 
-function getRegistryKey(type) {
-  return typeMap[type] || null;
-}
+register({
+  type: "category",
+  id: "business",
+  name: "Business",
+  icon: "💼"
+});
 
-export function register(item) {
-  if (!item || !item.type || !item.id) {
-    throw new Error("Registry item needs type and id");
+register({
+  type: "category",
+  id: "portfolio",
+  name: "Portfolio",
+  icon: "👤"
+});
+
+register({
+  type: "category",
+  id: "marketing",
+  name: "Marketing",
+  icon: "📢"
+});
+
+register({
+  type: "category",
+  id: "shop",
+  name: "Shop",
+  icon: "🛍️"
+});
+
+register({
+  type: "category",
+  id: "restaurant",
+  name: "Restaurant",
+  icon: "🍔"
+});
+
+register({
+  type: "category",
+  id: "personal",
+  name: "Personal",
+  icon: "✨"
+});
+
+/* =========================
+   STYLES
+========================= */
+
+register({
+  type: "style",
+  id: "modern",
+  name: "Modern"
+});
+
+register({
+  type: "style",
+  id: "minimal",
+  name: "Minimal"
+});
+
+register({
+  type: "style",
+  id: "luxury",
+  name: "Luxury"
+});
+
+register({
+  type: "style",
+  id: "futuristic",
+  name: "Futuristic"
+});
+
+register({
+  type: "style",
+  id: "glass",
+  name: "Glass"
+});
+
+/* =========================
+   THEMES
+========================= */
+
+register({
+  type: "theme",
+  id: "ocean",
+  name: "Ocean Blue",
+  colors: {
+    primary: "#2563eb",
+    secondary: "#dbeafe",
+    background: "#ffffff",
+    text: "#111827"
   }
+});
 
-  const key = getRegistryKey(item.type);
-
-  if (!key) {
-    throw new Error(`Unknown registry type: ${item.type}`);
+register({
+  type: "theme",
+  id: "midnight",
+  name: "Midnight",
+  colors: {
+    primary: "#8b5cf6",
+    secondary: "#312e81",
+    background: "#0f172a",
+    text: "#f8fafc"
   }
+});
 
-  const exists = registry[key].some(
-    (entry) => entry.id === item.id
-  );
-
-  if (exists) {
-    return;
+register({
+  type: "theme",
+  id: "sunset",
+  name: "Sunset",
+  colors: {
+    primary: "#f97316",
+    secondary: "#fed7aa",
+    background: "#fff7ed",
+    text: "#431407"
   }
+});
 
-  registry[key].push({
-    ...item
-  });
-}
+/* =========================
+   TEMPLATES
+========================= */
 
-export function getAll(type) {
-  const key = getRegistryKey(type);
+register({
+  type: "template",
+  id: "modern-company",
+  name: "Modern Company",
+  category: "business",
+  style: "modern",
+  theme: "ocean",
+  tags: [
+    "company",
+    "business",
+    "modern",
+    "corporate"
+  ],
+  popularity: 98,
+  createdAt: "2026-09-29",
+  sections: [
+    "navbar",
+    "hero",
+    "features",
+    "about",
+    "contact",
+    "footer"
+  ]
+});
 
-  if (!key) {
-    return [];
-  }
+register({
+  type: "template",
+  id: "developer-dark",
+  name: "Developer Dark",
+  category: "portfolio",
+  style: "futuristic",
+  theme: "midnight",
+  tags: [
+    "developer",
+    "portfolio",
+    "dark",
+    "coding"
+  ],
+  popularity: 95,
+  createdAt: "2026-09-29",
+  sections: [
+    "navbar",
+    "hero",
+    "projects",
+    "about",
+    "contact",
+    "footer"
+  ]
+});
 
-  return [...registry[key]];
-}
+register({
+  type: "template",
+  id: "startup-launch",
+  name: "Startup Launch",
+  category: "marketing",
+  style: "modern",
+  theme: "ocean",
+  tags: [
+    "startup",
+    "landing",
+    "marketing"
+  ],
+  popularity: 91,
+  createdAt: "2026-09-29",
+  sections: [
+    "navbar",
+    "hero",
+    "features",
+    "pricing",
+    "contact",
+    "footer"
+  ]
+});
 
-export function get(type, id) {
-  if (!id) {
-    return undefined;
-  }
+register({
+  type: "template",
+  id: "luxury-cafe",
+  name: "Luxury Cafe",
+  category: "restaurant",
+  style: "luxury",
+  theme: "sunset",
+  tags: [
+    "cafe",
+    "restaurant",
+    "food",
+    "luxury"
+  ],
+  popularity: 88,
+  createdAt: "2026-09-29",
+  sections: [
+    "navbar",
+    "hero",
+    "menu",
+    "gallery",
+    "contact",
+    "footer"
+  ]
+});
 
-  return getAll(type).find(
-    (item) => item.id === id
-  );
-}
+register({
+  type: "template",
+  id: "minimal-personal",
+  name: "Minimal Personal",
+  category: "personal",
+  style: "minimal",
+  theme: "ocean",
+  tags: [
+    "personal",
+    "minimal",
+    "profile"
+  ],
+  popularity: 84,
+  createdAt: "2026-09-28",
+  sections: [
+    "navbar",
+    "hero",
+    "about",
+    "contact",
+    "footer"
+  ]
+});
 
-export function searchTemplates(query = "") {
-  const q = String(query)
-    .toLowerCase()
-    .trim();
-
-  const templates = getAll("template");
-
-  if (!q) {
-    return templates;
-  }
-
-  return templates.filter((template) => {
-    const searchable = [
-      template.name,
-      template.category,
-      template.style,
-      template.theme,
-      ...(template.tags || [])
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-
-    return searchable.includes(q);
-  });
-}
-
-export default registry;
+register({
+  type: "template",
+  id: "glass-shop",
+  name: "Glass Shop",
+  category: "shop",
+  style: "glass",
+  theme: "ocean",
+  tags: [
+    "shop",
+    "store",
+    "product",
+    "glass"
+  ],
+  popularity: 81,
+  createdAt: "2026-09-27",
+  sections: [
+    "navbar",
+    "hero",
+    "features",
+    "products",
+    "contact",
+    "footer"
+  ]
+});
