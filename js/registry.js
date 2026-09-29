@@ -15,7 +15,7 @@ const typeMap = {
 };
 
 function getRegistryKey(type) {
-  return typeMap[type];
+  return typeMap[type] || null;
 }
 
 export function register(item) {
@@ -25,41 +25,68 @@ export function register(item) {
 
   const key = getRegistryKey(item.type);
 
-  if (!key || !registry[key]) {
+  if (!key) {
     throw new Error(`Unknown registry type: ${item.type}`);
   }
 
-  registry[key].push(item);
+  const exists = registry[key].some(
+    (entry) => entry.id === item.id
+  );
+
+  if (exists) {
+    return;
+  }
+
+  registry[key].push({
+    ...item
+  });
 }
 
 export function getAll(type) {
   const key = getRegistryKey(type);
-  return key ? [...registry[key]] : [];
+
+  if (!key) {
+    return [];
+  }
+
+  return [...registry[key]];
 }
 
 export function get(type, id) {
-  return getAll(type).find((x) => x.id === id);
+  if (!id) {
+    return undefined;
+  }
+
+  return getAll(type).find(
+    (item) => item.id === id
+  );
 }
 
 export function searchTemplates(query = "") {
-  const q = query.toLowerCase().trim();
+  const q = String(query)
+    .toLowerCase()
+    .trim();
+
+  const templates = getAll("template");
 
   if (!q) {
-    return getAll("template");
+    return templates;
   }
 
-  return getAll("template").filter((t) =>
-    [
-      t.name,
-      t.category,
-      t.style,
-      t.theme,
-      ...(t.tags || [])
+  return templates.filter((template) => {
+    const searchable = [
+      template.name,
+      template.category,
+      template.style,
+      template.theme,
+      ...(template.tags || [])
     ]
+      .filter(Boolean)
       .join(" ")
-      .toLowerCase()
-      .includes(q)
-  );
+      .toLowerCase();
+
+    return searchable.includes(q);
+  });
 }
 
 export default registry;
