@@ -1,272 +1,553 @@
-import { register } from "./registry.js";
+import {
+  getAll,
+  searchTemplates
+} from "./registry.js";
+
+import "./catalog.js";
+
+const $ = (selector) =>
+  document.querySelector(selector);
+
+const grids = {
+  recommended: $("#recommendedGrid"),
+  popular: $("#popularGrid"),
+  new: $("#newGrid")
+};
+
+/* =========================
+   HELPERS
+========================= */
+
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getThemeColors(themeId) {
+  const themes = {
+    ocean: [
+      "#2563eb",
+      "#7c3aed"
+    ],
+
+    midnight: [
+      "#0f172a",
+      "#4c1d95"
+    ],
+
+    sunset: [
+      "#f97316",
+      "#dc2626"
+    ]
+  };
+
+  return (
+    themes[themeId] || [
+      "#64748b",
+      "#94a3b8"
+    ]
+  );
+}
+
+/* =========================
+   TEMPLATE CARD
+========================= */
+
+function templateCard(template) {
+  const [
+    colorA,
+    colorB
+  ] = getThemeColors(
+    template.theme
+  );
+
+  const category = getAll("category")
+    .find(
+      (item) =>
+        item.id === template.category
+    );
+
+  const style = getAll("style")
+    .find(
+      (item) =>
+        item.id === template.style
+    );
+
+  return `
+    <article class="template-card">
+
+      <div
+        class="thumb"
+        style="
+          --a:${colorA};
+          --b:${colorB};
+        "
+      >
+        <div class="thumb-ui">
+          <div class="thumb-top"></div>
+          <div class="thumb-title"></div>
+          <div class="thumb-content"></div>
+        </div>
+      </div>
+
+      <div class="card-body">
+
+        <h4>
+          ${escapeHTML(template.name)}
+        </h4>
+
+        <div class="meta">
+          ${category?.name || template.category}
+          ·
+          ${style?.name || template.style}
+        </div>
+
+        <div class="card-actions">
+
+          <span class="popularity">
+            🔥 ${template.popularity}
+          </span>
+
+          <button
+            class="use-btn"
+            data-use="${escapeHTML(template.id)}"
+          >
+            Use template
+          </button>
+
+        </div>
+
+      </div>
+
+    </article>
+  `;
+}
+
+/* =========================
+   RENDER TEMPLATES
+========================= */
+
+function renderTemplates(
+  list,
+  target
+) {
+  if (!target) {
+    return;
+  }
+
+  if (!list.length) {
+    target.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔎</div>
+        <strong>No templates found</strong>
+        <span>
+          ลองเปลี่ยนคำค้นหาหรือ Filter
+        </span>
+      </div>
+    `;
+
+    return;
+  }
+
+  target.innerHTML = list
+    .map(templateCard)
+    .join("");
+
+  target
+    .querySelectorAll("[data-use]")
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const id =
+            button.dataset.use;
+
+          location.href =
+            `editor.html?template=${encodeURIComponent(id)}`;
+        }
+      );
+    });
+}
+
+/* =========================
+   FILTER + SEARCH
+========================= */
+
+function refresh(query = "") {
+
+  let templates =
+    searchTemplates(query);
+
+  const categoryFilter =
+    $("#categoryFilter");
+
+  const styleFilter =
+    $("#styleFilter");
+
+  const category =
+    categoryFilter?.value ||
+    "all";
+
+  const style =
+    styleFilter?.value ||
+    "all";
+
+  if (category !== "all") {
+
+    templates =
+      templates.filter(
+        (template) =>
+          template.category ===
+          category
+      );
+  }
+
+  if (style !== "all") {
+
+    templates =
+      templates.filter(
+        (template) =>
+          template.style ===
+          style
+      );
+  }
+
+  const recommended =
+    [...templates]
+      .sort(
+        (a, b) =>
+          b.popularity -
+          a.popularity
+      )
+      .slice(0, 8);
+
+  const popular =
+    [...templates]
+      .sort(
+        (a, b) =>
+          b.popularity -
+          a.popularity
+      )
+      .slice(0, 8);
+
+  const newest =
+    [...templates]
+      .sort(
+        (a, b) =>
+          String(b.createdAt)
+            .localeCompare(
+              String(a.createdAt)
+            )
+      )
+      .slice(0, 8);
+
+  renderTemplates(
+    recommended,
+    grids.recommended
+  );
+
+  renderTemplates(
+    popular,
+    grids.popular
+  );
+
+  renderTemplates(
+    newest,
+    grids.new
+  );
+}
+
+/* =========================
+   FILTERS
+========================= */
+
+function setupFilters() {
+
+  const categoryFilter =
+    $("#categoryFilter");
+
+  const styleFilter =
+    $("#styleFilter");
+
+  const searchInput =
+    $("#searchInput");
+
+  if (categoryFilter) {
+
+    getAll("category")
+      .forEach((category) => {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          category.id;
+
+        option.textContent =
+          category.name;
+
+        categoryFilter.appendChild(
+          option
+        );
+      });
+  }
+
+  if (styleFilter) {
+
+    getAll("style")
+      .forEach((style) => {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          style.id;
+
+        option.textContent =
+          style.name;
+
+        styleFilter.appendChild(
+          option
+        );
+      });
+  }
+
+  searchInput?.addEventListener(
+    "input",
+    () => {
+      refresh(
+        searchInput.value
+      );
+    }
+  );
+
+  categoryFilter?.addEventListener(
+    "change",
+    () => {
+      refresh(
+        searchInput?.value || ""
+      );
+    }
+  );
+
+  styleFilter?.addEventListener(
+    "change",
+    () => {
+      refresh(
+        searchInput?.value || ""
+      );
+    }
+  );
+}
 
 /* =========================
    CATEGORIES
 ========================= */
 
-register({
-  type: "category",
-  id: "business",
-  name: "Business",
-  icon: "💼"
-});
+function setupCategories() {
 
-register({
-  type: "category",
-  id: "portfolio",
-  name: "Portfolio",
-  icon: "👤"
-});
+  const categoryGrid =
+    $("#categoryGrid");
 
-register({
-  type: "category",
-  id: "marketing",
-  name: "Marketing",
-  icon: "📢"
-});
+  if (!categoryGrid) {
+    return;
+  }
 
-register({
-  type: "category",
-  id: "shop",
-  name: "Shop",
-  icon: "🛍️"
-});
+  const categories =
+    getAll("category");
 
-register({
-  type: "category",
-  id: "restaurant",
-  name: "Restaurant",
-  icon: "🍔"
-});
+  categoryGrid.innerHTML =
+    categories
+      .map(
+        (category) => `
+          <button
+            class="category"
+            data-cat="${escapeHTML(category.id)}"
+          >
+            <span class="category-icon">
+              ${category.icon}
+            </span>
 
-register({
-  type: "category",
-  id: "personal",
-  name: "Personal",
-  icon: "✨"
-});
+            <span>
+              ${escapeHTML(category.name)}
+            </span>
+          </button>
+        `
+      )
+      .join("");
+
+  categoryGrid
+    .querySelectorAll("[data-cat]")
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const category =
+            button.dataset.cat;
+
+          const categoryFilter =
+            $("#categoryFilter");
+
+          const searchInput =
+            $("#searchInput");
+
+          if (categoryFilter) {
+            categoryFilter.value =
+              category;
+          }
+
+          refresh(
+            searchInput?.value ||
+              ""
+          );
+
+          location.hash =
+            "templates";
+
+          setTimeout(() => {
+
+            document
+              .querySelector(
+                "#templates"
+              )
+              ?.scrollIntoView({
+                behavior: "smooth"
+              });
+
+          }, 50);
+        }
+      );
+    });
+}
 
 /* =========================
-   STYLES
+   BUTTONS
 ========================= */
 
-register({
-  type: "style",
-  id: "modern",
-  name: "Modern"
-});
+function setupButtons() {
 
-register({
-  type: "style",
-  id: "minimal",
-  name: "Minimal"
-});
+  $("#createBtn")
+    ?.addEventListener(
+      "click",
+      () => {
+        location.href =
+          "editor.html";
+      }
+    );
 
-register({
-  type: "style",
-  id: "luxury",
-  name: "Luxury"
-});
+  $("#generateBtn")
+    ?.addEventListener(
+      "click",
+      () => {
 
-register({
-  type: "style",
-  id: "futuristic",
-  name: "Futuristic"
-});
+        const input =
+          $("#searchInput");
 
-register({
-  type: "style",
-  id: "glass",
-  name: "Glass"
-});
+        refresh(
+          input?.value.trim() ||
+            ""
+        );
+
+        location.hash =
+          "templates";
+
+        document
+          .querySelector(
+            "#templates"
+          )
+          ?.scrollIntoView({
+            behavior: "smooth"
+          });
+      }
+    );
+
+  $("#starterBtn")
+    ?.addEventListener(
+      "click",
+      () => {
+
+        location.href =
+          "TEMPLATE_STARTER.md";
+      }
+    );
+}
 
 /* =========================
-   THEMES
+   HASH
 ========================= */
 
-register({
-  type: "theme",
-  id: "ocean",
-  name: "Ocean Blue",
-  colors: {
-    primary: "#2563eb",
-    secondary: "#dbeafe",
-    background: "#ffffff",
-    text: "#111827"
-  }
-});
+function handleHash() {
 
-register({
-  type: "theme",
-  id: "midnight",
-  name: "Midnight",
-  colors: {
-    primary: "#8b5cf6",
-    secondary: "#312e81",
-    background: "#0f172a",
-    text: "#f8fafc"
-  }
-});
+  const hash =
+    location.hash.replace(
+      "#",
+      ""
+    );
 
-register({
-  type: "theme",
-  id: "sunset",
-  name: "Sunset",
-  colors: {
-    primary: "#f97316",
-    secondary: "#fed7aa",
-    background: "#fff7ed",
-    text: "#431407"
+  if (
+    hash === "templates"
+  ) {
+
+    setTimeout(() => {
+
+      document
+        .querySelector(
+          "#templates"
+        )
+        ?.scrollIntoView();
+
+    }, 100);
   }
-});
+}
 
 /* =========================
-   TEMPLATES
+   INIT
 ========================= */
 
-register({
-  type: "template",
-  id: "modern-company",
-  name: "Modern Company",
-  category: "business",
-  style: "modern",
-  theme: "ocean",
-  tags: [
-    "company",
-    "business",
-    "modern",
-    "corporate"
-  ],
-  popularity: 98,
-  createdAt: "2026-09-29",
-  sections: [
-    "navbar",
-    "hero",
-    "features",
-    "about",
-    "contact",
-    "footer"
-  ]
-});
+function init() {
 
-register({
-  type: "template",
-  id: "developer-dark",
-  name: "Developer Dark",
-  category: "portfolio",
-  style: "futuristic",
-  theme: "midnight",
-  tags: [
-    "developer",
-    "portfolio",
-    "dark",
-    "coding"
-  ],
-  popularity: 95,
-  createdAt: "2026-09-29",
-  sections: [
-    "navbar",
-    "hero",
-    "projects",
-    "about",
-    "contact",
-    "footer"
-  ]
-});
+  console.log(
+    "webCanvas starting..."
+  );
 
-register({
-  type: "template",
-  id: "startup-launch",
-  name: "Startup Launch",
-  category: "marketing",
-  style: "modern",
-  theme: "ocean",
-  tags: [
-    "startup",
-    "landing",
-    "marketing"
-  ],
-  popularity: 91,
-  createdAt: "2026-09-29",
-  sections: [
-    "navbar",
-    "hero",
-    "features",
-    "pricing",
-    "contact",
-    "footer"
-  ]
-});
+  console.log(
+    "Templates:",
+    getAll("template")
+  );
 
-register({
-  type: "template",
-  id: "luxury-cafe",
-  name: "Luxury Cafe",
-  category: "restaurant",
-  style: "luxury",
-  theme: "sunset",
-  tags: [
-    "cafe",
-    "restaurant",
-    "food",
-    "luxury"
-  ],
-  popularity: 88,
-  createdAt: "2026-09-29",
-  sections: [
-    "navbar",
-    "hero",
-    "menu",
-    "gallery",
-    "contact",
-    "footer"
-  ]
-});
+  console.log(
+    "Categories:",
+    getAll("category")
+  );
 
-register({
-  type: "template",
-  id: "minimal-personal",
-  name: "Minimal Personal",
-  category: "personal",
-  style: "minimal",
-  theme: "ocean",
-  tags: [
-    "personal",
-    "minimal",
-    "profile"
-  ],
-  popularity: 84,
-  createdAt: "2026-09-28",
-  sections: [
-    "navbar",
-    "hero",
-    "about",
-    "contact",
-    "footer"
-  ]
-});
+  console.log(
+    "Styles:",
+    getAll("style")
+  );
 
-register({
-  type: "template",
-  id: "glass-shop",
-  name: "Glass Shop",
-  category: "shop",
-  style: "glass",
-  theme: "ocean",
-  tags: [
-    "shop",
-    "store",
-    "product",
-    "glass"
-  ],
-  popularity: 81,
-  createdAt: "2026-09-27",
-  sections: [
-    "navbar",
-    "hero",
-    "features",
-    "products",
-    "contact",
-    "footer"
-  ]
-});
+  setupFilters();
+  setupCategories();
+  setupButtons();
+
+  refresh();
+
+  handleHash();
+
+  console.log(
+    "webCanvas ready"
+  );
+}
+
+init();
