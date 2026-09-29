@@ -3,90 +3,340 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>webCanvas</title>
+
+  <title>webCanvas — Website Creation Platform</title>
+
+  <meta
+    name="description"
+    content="webCanvas — สร้างและปรับแต่งเว็บไซต์จาก Template ได้อย่างง่ายดาย"
+  >
+
   <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body>
+
+  <!-- =========================
+       HEADER
+  ========================== -->
   <header class="topbar">
-    <div class="brand">web<span>Canvas</span></div>
-    <nav>
+
+    <a class="brand" href="#home" aria-label="webCanvas Home">
+      web<span>Canvas</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main navigation">
       <a href="#home">Home</a>
       <a href="#templates">Templates</a>
       <a href="#categories">Categories</a>
       <a href="#community">Community</a>
     </nav>
-    <button class="primary" id="createBtn">+ Create Website</button>
+
+    <button
+      class="primary"
+      id="createBtn"
+      type="button"
+    >
+      + Create Website
+    </button>
+
   </header>
 
+
+  <!-- =========================
+       MAIN
+  ========================== -->
   <main>
-    <section class="hero" id="home">
-      <div>
-        <p class="eyebrow">WEBSITE CREATION PLATFORM</p>
-        <h1>Create a website without starting from zero.</h1>
-        <p class="lead">เลือกประเภท สไตล์ และ Template แล้วเริ่มปรับแต่งเว็บไซต์ของคุณได้ทันที</p>
+
+    <!-- =====================
+         HERO
+    ====================== -->
+    <section
+      class="hero"
+      id="home"
+    >
+
+      <div class="hero-content">
+
+        <p class="eyebrow">
+          WEBSITE CREATION PLATFORM
+        </p>
+
+        <h1>
+          Create a website
+          <br>
+          without starting from zero.
+        </h1>
+
+        <p class="lead">
+          เลือกประเภท สไตล์ และ Template
+          แล้วเริ่มปรับแต่งเว็บไซต์ของคุณได้ทันที
+        </p>
+
+
+        <!-- SEARCH -->
         <div class="searchbox">
-          <span>⌕</span>
-          <input id="searchInput" placeholder="ค้นหา Template เช่น portfolio, business, modern...">
+
+          <span
+            class="search-icon"
+            aria-hidden="true"
+          >
+            ⌕
+          </span>
+
+          <input
+            id="searchInput"
+            type="search"
+            autocomplete="off"
+            placeholder="ค้นหา Template เช่น portfolio, business, modern..."
+            aria-label="ค้นหา Template"
+          >
+
         </div>
+
+
+        <!-- HERO ACTIONS -->
         <div class="hero-actions">
-          <button class="primary" id="generateBtn">✨ Generate Website</button>
-          <a class="secondary" href="#templates">Browse Templates</a>
+
+          <button
+            class="primary"
+            id="generateBtn"
+            type="button"
+          >
+            ✨ Generate Website
+          </button>
+
+          <a
+            class="secondary"
+            href="#templates"
+          >
+            Browse Templates
+          </a>
+
         </div>
+
       </div>
-      <div class="hero-card">
+
+
+      <!-- HERO PREVIEW -->
+      <div
+        class="hero-card"
+        aria-hidden="true"
+      >
+
         <div class="mini-window">
-          <div class="dots">● ● ●</div>
+
+          <div class="dots">
+            <span>●</span>
+            <span>●</span>
+            <span>●</span>
+          </div>
+
           <div class="mini-line wide"></div>
+
           <div class="mini-line"></div>
+
           <div class="mini-block"></div>
-          <div class="mini-grid"><i></i><i></i><i></i></div>
+
+          <div class="mini-grid">
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
+
         </div>
+
       </div>
+
     </section>
 
-    <section class="section" id="templates">
+
+    <!-- =====================
+         TEMPLATES
+    ====================== -->
+    <section
+      class="section"
+      id="templates"
+    >
+
       <div class="section-head">
+
         <div>
-          <p class="eyebrow">DISCOVER</p>
-          <h2>Templates for every idea</h2>
+
+          <p class="eyebrow">
+            DISCOVER
+          </p>
+
+          <h2>
+            Templates for every idea
+          </h2>
+
         </div>
+
+
+        <!-- FILTERS -->
         <div class="filters">
-          <select id="categoryFilter"><option value="all">ทุกประเภท</option></select>
-          <select id="styleFilter"><option value="all">ทุกสไตล์</option></select>
+
+          <label class="sr-only" for="categoryFilter">
+            เลือกประเภท
+          </label>
+
+          <select id="categoryFilter">
+            <option value="all">
+              ทุกประเภท
+            </option>
+          </select>
+
+
+          <label class="sr-only" for="styleFilter">
+            เลือกสไตล์
+          </label>
+
+          <select id="styleFilter">
+            <option value="all">
+              ทุกสไตล์
+            </option>
+          </select>
+
         </div>
+
       </div>
 
+
+      <!-- RECOMMENDED -->
       <div class="subsection">
-        <h3>⭐ Recommended for you</h3>
-        <div class="template-grid" id="recommendedGrid"></div>
+
+        <div class="subsection-head">
+
+          <h3>
+            ⭐ Recommended for you
+          </h3>
+
+        </div>
+
+        <div
+          class="template-grid"
+          id="recommendedGrid"
+        ></div>
+
       </div>
 
+
+      <!-- POPULAR -->
       <div class="subsection">
-        <h3>🔥 Popular</h3>
-        <div class="template-grid" id="popularGrid"></div>
+
+        <div class="subsection-head">
+
+          <h3>
+            🔥 Popular
+          </h3>
+
+        </div>
+
+        <div
+          class="template-grid"
+          id="popularGrid"
+        ></div>
+
       </div>
 
+
+      <!-- NEW -->
       <div class="subsection">
-        <h3>🆕 New Templates</h3>
-        <div class="template-grid" id="newGrid"></div>
+
+        <div class="subsection-head">
+
+          <h3>
+            🆕 New Templates
+          </h3>
+
+        </div>
+
+        <div
+          class="template-grid"
+          id="newGrid"
+        ></div>
+
       </div>
+
     </section>
 
-    <section class="section" id="categories">
-      <p class="eyebrow">EXPLORE</p>
-      <h2>Choose what you want to build</h2>
-      <div class="category-grid" id="categoryGrid"></div>
+
+    <!-- =====================
+         CATEGORIES
+    ====================== -->
+    <section
+      class="section"
+      id="categories"
+    >
+
+      <p class="eyebrow">
+        EXPLORE
+      </p>
+
+      <h2>
+        Choose what you want to build
+      </h2>
+
+      <div
+        class="category-grid"
+        id="categoryGrid"
+      ></div>
+
     </section>
 
-    <section class="section community" id="community">
-      <p class="eyebrow">COMMUNITY</p>
-      <h2>Build a Template. Share it.</h2>
-      <p>webCanvas ออกแบบให้คนอื่นสามารถสร้าง Template และส่งเข้าระบบได้ โดยไม่ต้องแก้ Core ของโปรเจกต์</p>
-      <button class="secondary" id="starterBtn">View Template Starter</button>
+
+    <!-- =====================
+         COMMUNITY
+    ====================== -->
+    <section
+      class="section community"
+      id="community"
+    >
+
+      <p class="eyebrow">
+        COMMUNITY
+      </p>
+
+      <h2>
+        Build a Template. Share it.
+      </h2>
+
+      <p>
+        webCanvas ออกแบบให้คนอื่นสามารถสร้าง Template
+        และส่งเข้าระบบได้ โดยไม่ต้องแก้ Core ของโปรเจกต์
+      </p>
+
+      <button
+        class="secondary"
+        id="starterBtn"
+        type="button"
+      >
+        View Template Starter
+      </button>
+
     </section>
+
   </main>
 
-  <footer>webCanvas · Website creation made modular.</footer>
-  <script type="module" src="js/app.js"></script>
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+  <footer>
+    <span>webCanvas</span>
+    <span>·</span>
+    <span>Website creation made modular.</span>
+  </footer>
+
+
+  <!-- =========================
+       APP
+  ========================== -->
+  <script
+    type="module"
+    src="js/app.js"
+  ></script>
+
 </body>
 </html>
