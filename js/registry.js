@@ -1,553 +1,207 @@
-import {
-  getAll,
-  searchTemplates
-} from "./registry.js";
+// ============================================================
+// webCanvas Registry
+// ============================================================
 
-import "./catalog.js";
-
-const $ = (selector) =>
-  document.querySelector(selector);
-
-const grids = {
-  recommended: $("#recommendedGrid"),
-  popular: $("#popularGrid"),
-  new: $("#newGrid")
+const registry = {
+  template: [],
+  category: [],
+  style: [],
+  theme: [],
+  element: []
 };
 
-/* =========================
-   HELPERS
-========================= */
 
-function escapeHTML(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+// ============================================================
+// REGISTER
+// ============================================================
 
-function getThemeColors(themeId) {
-  const themes = {
-    ocean: [
-      "#2563eb",
-      "#7c3aed"
-    ],
+export function register(item) {
 
-    midnight: [
-      "#0f172a",
-      "#4c1d95"
-    ],
-
-    sunset: [
-      "#f97316",
-      "#dc2626"
-    ]
-  };
-
-  return (
-    themes[themeId] || [
-      "#64748b",
-      "#94a3b8"
-    ]
-  );
-}
-
-/* =========================
-   TEMPLATE CARD
-========================= */
-
-function templateCard(template) {
-  const [
-    colorA,
-    colorB
-  ] = getThemeColors(
-    template.theme
-  );
-
-  const category = getAll("category")
-    .find(
-      (item) =>
-        item.id === template.category
+  if (!item || !item.type || !item.id) {
+    console.warn(
+      "webCanvas: invalid registry item",
+      item
     );
 
-  const style = getAll("style")
-    .find(
-      (item) =>
-        item.id === template.style
+    return item;
+  }
+
+  if (!registry[item.type]) {
+    console.warn(
+      `webCanvas: unknown registry type "${item.type}"`
     );
 
-  return `
-    <article class="template-card">
+    return item;
+  }
 
-      <div
-        class="thumb"
-        style="
-          --a:${colorA};
-          --b:${colorB};
-        "
-      >
-        <div class="thumb-ui">
-          <div class="thumb-top"></div>
-          <div class="thumb-title"></div>
-          <div class="thumb-content"></div>
-        </div>
-      </div>
+  const list =
+    registry[item.type];
 
-      <div class="card-body">
+  const existingIndex =
+    list.findIndex(
+      (entry) =>
+        entry.id === item.id
+    );
 
-        <h4>
-          ${escapeHTML(template.name)}
-        </h4>
+  // ถ้ามีอยู่แล้ว → อัปเดตข้อมูล
+  if (existingIndex !== -1) {
 
-        <div class="meta">
-          ${category?.name || template.category}
-          ·
-          ${style?.name || template.style}
-        </div>
+    list[existingIndex] = {
+      ...list[existingIndex],
+      ...item
+    };
 
-        <div class="card-actions">
+  } else {
 
-          <span class="popularity">
-            🔥 ${template.popularity}
-          </span>
+    // ถ้ายังไม่มี → เพิ่มใหม่
+    list.push({
+      ...item
+    });
+  }
 
-          <button
-            class="use-btn"
-            data-use="${escapeHTML(template.id)}"
-          >
-            Use template
-          </button>
-
-        </div>
-
-      </div>
-
-    </article>
-  `;
+  return item;
 }
 
-/* =========================
-   RENDER TEMPLATES
-========================= */
 
-function renderTemplates(
-  list,
-  target
+// ============================================================
+// GET ALL
+// ============================================================
+
+export function getAll(type) {
+
+  if (!registry[type]) {
+    return [];
+  }
+
+  return [
+    ...registry[type]
+  ];
+}
+
+
+// ============================================================
+// GET BY ID
+// ============================================================
+
+export function get(
+  type,
+  id
 ) {
-  if (!target) {
-    return;
-  }
-
-  if (!list.length) {
-    target.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🔎</div>
-        <strong>No templates found</strong>
-        <span>
-          ลองเปลี่ยนคำค้นหาหรือ Filter
-        </span>
-      </div>
-    `;
-
-    return;
-  }
-
-  target.innerHTML = list
-    .map(templateCard)
-    .join("");
-
-  target
-    .querySelectorAll("[data-use]")
-    .forEach((button) => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const id =
-            button.dataset.use;
-
-          location.href =
-            `editor.html?template=${encodeURIComponent(id)}`;
-        }
-      );
-    });
-}
-
-/* =========================
-   FILTER + SEARCH
-========================= */
-
-function refresh(query = "") {
-
-  let templates =
-    searchTemplates(query);
-
-  const categoryFilter =
-    $("#categoryFilter");
-
-  const styleFilter =
-    $("#styleFilter");
-
-  const category =
-    categoryFilter?.value ||
-    "all";
-
-  const style =
-    styleFilter?.value ||
-    "all";
-
-  if (category !== "all") {
-
-    templates =
-      templates.filter(
-        (template) =>
-          template.category ===
-          category
-      );
-  }
-
-  if (style !== "all") {
-
-    templates =
-      templates.filter(
-        (template) =>
-          template.style ===
-          style
-      );
-  }
-
-  const recommended =
-    [...templates]
-      .sort(
-        (a, b) =>
-          b.popularity -
-          a.popularity
-      )
-      .slice(0, 8);
-
-  const popular =
-    [...templates]
-      .sort(
-        (a, b) =>
-          b.popularity -
-          a.popularity
-      )
-      .slice(0, 8);
-
-  const newest =
-    [...templates]
-      .sort(
-        (a, b) =>
-          String(b.createdAt)
-            .localeCompare(
-              String(a.createdAt)
-            )
-      )
-      .slice(0, 8);
-
-  renderTemplates(
-    recommended,
-    grids.recommended
-  );
-
-  renderTemplates(
-    popular,
-    grids.popular
-  );
-
-  renderTemplates(
-    newest,
-    grids.new
-  );
-}
-
-/* =========================
-   FILTERS
-========================= */
-
-function setupFilters() {
-
-  const categoryFilter =
-    $("#categoryFilter");
-
-  const styleFilter =
-    $("#styleFilter");
-
-  const searchInput =
-    $("#searchInput");
-
-  if (categoryFilter) {
-
-    getAll("category")
-      .forEach((category) => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-        option.value =
-          category.id;
-
-        option.textContent =
-          category.name;
-
-        categoryFilter.appendChild(
-          option
-        );
-      });
-  }
-
-  if (styleFilter) {
-
-    getAll("style")
-      .forEach((style) => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-        option.value =
-          style.id;
-
-        option.textContent =
-          style.name;
-
-        styleFilter.appendChild(
-          option
-        );
-      });
-  }
-
-  searchInput?.addEventListener(
-    "input",
-    () => {
-      refresh(
-        searchInput.value
-      );
-    }
-  );
-
-  categoryFilter?.addEventListener(
-    "change",
-    () => {
-      refresh(
-        searchInput?.value || ""
-      );
-    }
-  );
-
-  styleFilter?.addEventListener(
-    "change",
-    () => {
-      refresh(
-        searchInput?.value || ""
-      );
-    }
-  );
-}
-
-/* =========================
-   CATEGORIES
-========================= */
-
-function setupCategories() {
-
-  const categoryGrid =
-    $("#categoryGrid");
-
-  if (!categoryGrid) {
-    return;
-  }
-
-  const categories =
-    getAll("category");
-
-  categoryGrid.innerHTML =
-    categories
-      .map(
-        (category) => `
-          <button
-            class="category"
-            data-cat="${escapeHTML(category.id)}"
-          >
-            <span class="category-icon">
-              ${category.icon}
-            </span>
-
-            <span>
-              ${escapeHTML(category.name)}
-            </span>
-          </button>
-        `
-      )
-      .join("");
-
-  categoryGrid
-    .querySelectorAll("[data-cat]")
-    .forEach((button) => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const category =
-            button.dataset.cat;
-
-          const categoryFilter =
-            $("#categoryFilter");
-
-          const searchInput =
-            $("#searchInput");
-
-          if (categoryFilter) {
-            categoryFilter.value =
-              category;
-          }
-
-          refresh(
-            searchInput?.value ||
-              ""
-          );
-
-          location.hash =
-            "templates";
-
-          setTimeout(() => {
-
-            document
-              .querySelector(
-                "#templates"
-              )
-              ?.scrollIntoView({
-                behavior: "smooth"
-              });
-
-          }, 50);
-        }
-      );
-    });
-}
-
-/* =========================
-   BUTTONS
-========================= */
-
-function setupButtons() {
-
-  $("#createBtn")
-    ?.addEventListener(
-      "click",
-      () => {
-        location.href =
-          "editor.html";
-      }
-    );
-
-  $("#generateBtn")
-    ?.addEventListener(
-      "click",
-      () => {
-
-        const input =
-          $("#searchInput");
-
-        refresh(
-          input?.value.trim() ||
-            ""
-        );
-
-        location.hash =
-          "templates";
-
-        document
-          .querySelector(
-            "#templates"
-          )
-          ?.scrollIntoView({
-            behavior: "smooth"
-          });
-      }
-    );
-
-  $("#starterBtn")
-    ?.addEventListener(
-      "click",
-      () => {
-
-        location.href =
-          "TEMPLATE_STARTER.md";
-      }
-    );
-}
-
-/* =========================
-   HASH
-========================= */
-
-function handleHash() {
-
-  const hash =
-    location.hash.replace(
-      "#",
-      ""
-    );
 
   if (
-    hash === "templates"
+    !registry[type] ||
+    !id
   ) {
-
-    setTimeout(() => {
-
-      document
-        .querySelector(
-          "#templates"
-        )
-        ?.scrollIntoView();
-
-    }, 100);
+    return null;
   }
-}
 
-/* =========================
-   INIT
-========================= */
-
-function init() {
-
-  console.log(
-    "webCanvas starting..."
-  );
-
-  console.log(
-    "Templates:",
-    getAll("template")
-  );
-
-  console.log(
-    "Categories:",
-    getAll("category")
-  );
-
-  console.log(
-    "Styles:",
-    getAll("style")
-  );
-
-  setupFilters();
-  setupCategories();
-  setupButtons();
-
-  refresh();
-
-  handleHash();
-
-  console.log(
-    "webCanvas ready"
+  return (
+    registry[type].find(
+      (item) =>
+        item.id === id
+    ) || null
   );
 }
 
-init();
+
+// ============================================================
+// SEARCH TEMPLATES
+// ============================================================
+
+export function searchTemplates(
+  query = ""
+) {
+
+  const q =
+    String(query)
+      .trim()
+      .toLowerCase();
+
+  const templates =
+    getAll("template");
+
+  // ไม่มีคำค้นหา
+  if (!q) {
+    return templates;
+  }
+
+  return templates.filter(
+    (template) => {
+
+      const searchable = [
+
+        template.id,
+
+        template.name,
+
+        template.category,
+
+        template.style,
+
+        template.theme,
+
+        ...(Array.isArray(
+          template.tags
+        )
+          ? template.tags
+          : [])
+
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(q);
+    }
+  );
+}
+
+
+// ============================================================
+// CLEAR REGISTRY
+// ============================================================
+
+export function clearRegistry() {
+
+  Object.keys(
+    registry
+  ).forEach(
+    (type) => {
+
+      registry[type] = [];
+    }
+  );
+}
+
+
+// ============================================================
+// DEBUG
+// ============================================================
+
+export function getRegistryStats() {
+
+  return {
+
+    templates:
+      registry.template.length,
+
+    categories:
+      registry.category.length,
+
+    styles:
+      registry.style.length,
+
+    themes:
+      registry.theme.length,
+
+    elements:
+      registry.element.length
+  };
+}
+
+
+// ============================================================
+// DEFAULT EXPORT
+// ============================================================
+
+export default registry;
